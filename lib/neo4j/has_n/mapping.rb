@@ -7,7 +7,7 @@ module Neo4j
 
     # The object created by a has_n or has_one Neo4j::NodeMixin class method which enables creating and traversal of nodes.
     #
-    # Includes the Enumerable mixin.
+    # Includes the Enumerable and WillPaginate mixins.
     # The Neo4j::Mapping::ClassMethods::Relationship#has_n and Neo4j::Mapping::ClassMethods::Relationship#one
     # methods returns an object of this type.
     #
@@ -16,6 +16,8 @@ module Neo4j
     #
     class Mapping
       include Enumerable
+      include WillPaginate::Finders::Base
+      
       include ToJava
 
       def initialize(node, dsl) # :nodoc:
@@ -28,7 +30,7 @@ module Neo4j
       end
 
       def size
-        self.to_a.size # TODO: Optimise this
+        self.to_a.size
       end
 
       alias_method :length, :size
@@ -48,19 +50,34 @@ module Neo4j
       end
 
       # Required by the Enumerable mixin.
-      def each
-        @dsl.each_node(@node) {|n| yield n} # Should use yield here as passing &block through doesn't always work (why?)
+      def each(&block)
+        @dsl.each_node(@node, &block)
       end
 
       # returns none wrapped nodes, you may get better performance using this method
-      def _each
-        @dsl._each_node(@node) {|n| yield n}
+      def _each(&block)
+        @dsl._each_node(@node, &block)
       end
 
       # Returns an real ruby array.
       def to_ary
         self.to_a
       end
+
+      def wp_query(options, pager, args, &block) #:nodoc:
+         page     = pager.current_page || 1
+         to       = pager.per_page * page
+         from     = to - pager.per_page
+         i        = 0
+         res      = []
+         _each do |node|
+           res << node.wrapper if i >= from
+           i += 1
+           break if i >= to
+         end
+         pager.replace res
+         pager.total_entries ||= self.size  # TODO, this could be very slow to do
+       end
 
       # Returns true if there are no node in this type of relationship
       def empty?

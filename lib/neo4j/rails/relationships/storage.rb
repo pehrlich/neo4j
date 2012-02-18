@@ -18,7 +18,7 @@ module Neo4j
           @persisted_node_to_relationships = {}
         end
 
-        delegate :target_class, :relationship_class, to: :dsl
+        delegate :relationship_class, :target_class, to: :dsl
 
         def to_s #:nodoc:
           "Storage #{object_id} node: #{@node.id} rel_type: #{@rel_type} outgoing #{@outgoing_rels.size}/#{@unpersisted_outgoing_rels && @unpersisted_outgoing_rels.size} incoming #{@incoming_rels.size}/#{@unpersisted_incoming_rels && @unpersisted_incoming_rels.size}"

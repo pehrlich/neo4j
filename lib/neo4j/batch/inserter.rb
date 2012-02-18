@@ -14,7 +14,6 @@ module Neo4j
     class Inserter
       attr_reader :batch_inserter, :batch_indexer
       include ToJava
-      include Neo4j::Load
 
       # Creates a new batch inserter.
       # Will raise an exception if Neo4j is already running at the same storage_path
@@ -49,8 +48,6 @@ module Neo4j
         props = {} if clazz != Neo4j::Node && props.nil?
         props['_classname'] = clazz.to_s if clazz != Neo4j::Node
 
-        props = ensure_valid_props(props)
-
         node = @batch_inserter.create_node(props)
         props && _index(node, props, clazz)
         @rule_inserter.node_added(node, props)
@@ -71,9 +68,6 @@ module Neo4j
       def create_rel(rel_type, from_node, to_node, props=nil, clazz=Neo4j::Relationship)
         props = {} if clazz != Neo4j::Relationship && props.nil?
         props['_classname'] = clazz.to_s if clazz != Neo4j::Relationship
-
-        props = ensure_valid_props(props)
-
         rel = @batch_inserter.create_relationship(from_node, to_node, type_to_java(rel_type), props)
 
         props && _index(rel, props, clazz)
@@ -81,18 +75,16 @@ module Neo4j
         from_props = node_props(from_node)
 
         if from_props['_classname']
-          from_class = to_class(from_props['_classname'])
-          indexer = Indexer.instance_for(from_class)
+          indexer = Indexer.instance_for(from_props['_classname'])
           indexer.index_node_via_rel(rel_type, to_node, from_props)
         end
 
         to_props   = node_props(to_node)
         if to_props['_classname']
-          to_class = to_class(to_props['_classname'])
-          indexer = Indexer.instance_for(to_class)
+          indexer = Indexer.instance_for(to_props['_classname'])
           indexer.index_node_via_rel(rel_type, from_node, to_props)
         end
-        rel
+
       end
 
       # Return a hash of all properties of given node

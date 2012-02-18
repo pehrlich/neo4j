@@ -1,0 +1,36 @@
+require "rubygems"
+require "bundler/setup"
+require 'fileutils'
+require 'neo4j'
+
+#FileUtils.rm_rf Neo4j::Config[:storage_path]
+
+
+class FooNode < Neo4j::Model
+  property :user_id
+  index :user_id
+  has_n(:contacts)
+  def to_s
+    "FooNode #{user_id}"
+  end
+end
+
+node1 = FooNode.create(:user_id => 1)
+
+for x in 1..5 do
+for node_id in 2..2700
+#  node = FooNode.create(:user_id => node_id)
+#  node.contacts << node1
+#  node.save!
+
+  found = FooNode.find_by_user_id(node_id)
+  puts "Found #{found}"
+#  Neo4j::Transaction.run do
+#    found.del
+#  end
+  Neo4j::Rails::Model.close_lucene_connections
+#  puts "node_id=#{node_id} #{node.contacts.include?(node1)}" #if (node_id % 50) == 2
+end
+end
+puts "FINISHED"
+Neo4j.shutdown

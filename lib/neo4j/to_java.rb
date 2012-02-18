@@ -22,10 +22,5 @@ module Neo4j
         else raise "unknown direction '#{dir}', expects :outgoing, :incoming or :both"
       end
     end
-
-    def ensure_valid_props(hash)
-      hash ||= {}
-      Hash[ hash.each_pair.map{|k,v| [k.to_s, v]} ]
-    end
   end
 end

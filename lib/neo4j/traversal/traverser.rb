@@ -31,6 +31,7 @@ module Neo4j
     class Traverser
       include Enumerable
       include ToJava
+      include Neo4j::Paginate
 
 
       def initialize(from, type = nil, dir=nil)

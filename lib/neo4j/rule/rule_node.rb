@@ -13,8 +13,7 @@ module Neo4j
       @@rule_nodes = {}
 
       def initialize(clazz)
-        classname = clazz.to_s
-        @model_class = classname[0,1] == "#" ? eval(classname) : classname.split('::').inject(Kernel) {|sc, const_name| sc.const_get(const_name)}
+        @model_class = eval("#{clazz}")
         @classname = clazz
         @rules = []
         @rule_node_key = ("rule_" + clazz.to_s).to_sym

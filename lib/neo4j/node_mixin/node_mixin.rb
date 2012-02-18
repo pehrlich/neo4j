@@ -36,6 +36,8 @@ module Neo4j
   # * Neo4j::Index::ClassMethods
   # * Neo4j::HasList::ClassMethods
   #
+  # This class also includes the class mixin WillPaginate::Finders::Base, see http://github.com/mislav/will_paginate/wiki
+  #
   module NodeMixin
     include Neo4j::Index
 
@@ -97,13 +99,6 @@ module Neo4j
       self
     end
 
-    def pagination_source(*a)
-      binding.pry
-    end
-
-    def self.pagination_source(*a)
-      binding.pry
-    end
 
     def self.included(c) # :nodoc:
       c.instance_eval do
@@ -124,6 +119,7 @@ module Neo4j
       c.extend Neo4j::Rule::ClassMethods
       c.extend Neo4j::HasList::ClassMethods
       c.extend Neo4j::Index::ClassMethods
+      c.extend WillPaginate::Finders::Base
 
       def c.inherited(subclass)
         # inherit the index properties

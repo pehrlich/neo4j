@@ -28,18 +28,17 @@ lucene: { fulltext: { provider: lucene,
 # If set to true it you can use the database while it is migrating.
 migration_thread: false
 
-# If online backup should be available, if it is the Online JAR file will be loaded,
-# Notice it must be either 'true' or 'false' as string
-enable_online_backup: 'false'
+# If online backup should be available, if it is the Online JAR file will be loaded.
+online_backup_enabled: false
 
 #use the clustered Neo4j GraphDatabase (org.neo4j.kernel.HighlyAvailableGraphDatabase)
 ha.db: false
 
 # Example of HA Configuration, see http://wiki.neo4j.org/content/High_Availability_Cluster
 # This is only used when ha.db is set to true
-ha.server_id: 2
+ha.machine_id: 2
 ha.server: 'localhost:6002'
-ha.coordinators: 'localhost:2181,localhost:2182,localhost:2183'
+ha.zoo_keeper_servers: 'localhost:2181,localhost:2182,localhost:2183'
 
 # if enabled you can use the bin/neo4j-shell command to access the database
 enable_remote_shell: "port=9332"

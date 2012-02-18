@@ -67,6 +67,7 @@ module Neo4j
       #
       class RelsDSL
         include Enumerable
+        include Neo4j::Paginate
 
         def initialize(storage, dir=:both)
           @storage = storage
@@ -136,8 +137,8 @@ module Neo4j
           self
         end
 
-        def each
-          @storage.each_rel(@dir) {|x| yield x}
+        def each(&block)
+          @storage.each_rel(@dir, &block)
         end
 
         # Simply counts all relationships

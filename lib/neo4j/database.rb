@@ -24,6 +24,12 @@ module Neo4j
       @running = true
       @storage_path = Config.storage_path
 
+
+      if Config[:enable_remote_shell]
+        Neo4j.logger.info("Enable remote shell at port #{Config[:enable_remote_shell]}")
+        Neo4j.load_shell_jars
+      end
+
       begin
         if self.class.locked?
           start_readonly_graph_db
@@ -44,12 +50,14 @@ module Neo4j
 
     def start_readonly_graph_db #:nodoc:
       Neo4j.logger.info "Starting Neo4j in readonly mode since the #{@storage_path} is locked"
+      Neo4j.load_local_jars
       @graph = org.neo4j.kernel.EmbeddedReadOnlyGraphDatabase.new(@storage_path, Config.to_java_map)
       @lucene = @graph.index
     end
 
     def start_local_graph_db #:nodoc:
       Neo4j.logger.info "Starting local Neo4j using db #{@storage_path}"
+      Neo4j.load_local_jars
       @graph = org.neo4j.kernel.EmbeddedGraphDatabase.new(@storage_path, Config.to_java_map)
       @graph.register_transaction_event_handler(@event_handler)
       @lucene = @graph.index
@@ -67,11 +75,9 @@ module Neo4j
     end
 
     def start_ha_graph_db
-      Neo4j.logger.info "starting Neo4j in HA mode, machine id: #{Neo4j.config['ha.server_id']} at #{Neo4j.config['ha.server']} db #{@storage_path}"
-      # Modify the public base classes for the HA Node and Relationships
-      # (instead of private org.neo4j.kernel.HighlyAvailableGraphDatabase::LookupNode)
-      Neo4j::Node.extend_java_class(org.neo4j.tooling.wrap.WrappedNode)
-      Neo4j::Relationship.extend_java_class(org.neo4j.tooling.wrap.WrappedRelationship)
+      Neo4j.logger.info "starting Neo4j in HA mode, machine id: #{Neo4j.config['ha.machine_id']} at #{Neo4j.config['ha.server']} db #{@storage_path}"
+      Neo4j.load_ha_jars # those jars are only needed for the HighlyAvailableGraphDatabase
+      Neo4j.load_online_backup if Neo4j.config[:online_backup_enabled]
       @graph = org.neo4j.kernel.HighlyAvailableGraphDatabase.new(@storage_path, Neo4j.config.to_java_map)
       @graph.register_transaction_event_handler(@event_handler)
       @lucene = @graph.index

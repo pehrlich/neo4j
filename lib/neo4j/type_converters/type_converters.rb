@@ -59,12 +59,10 @@ module Neo4j
         end
 
         def to_java(value)
-          return nil if value.nil?
           !!value && value != '0'
         end
 
         def to_ruby(value)
-          return nil if value.nil?
           !!value && value != '0'
         end
       end
@@ -78,12 +76,12 @@ module Neo4j
         end
 
         def to_java(value)
-          return nil if value.nil?
+          return nil unless value
           value.to_s
         end
 
         def to_ruby(value)
-          return nil if value.nil?
+          return nil unless value
           value.to_sym
         end
       end
@@ -98,12 +96,12 @@ module Neo4j
         end
 
         def to_java(value)
-          return nil if value.nil?
+          return nil unless value
           value.to_s
         end
 
         def to_ruby(value)
-          return nil if value.nil?
+          return nil unless value
           value.to_s
         end
       end
@@ -115,16 +113,14 @@ module Neo4j
       class << self
 
         def convert?(class_or_symbol)
-          Fixnum == class_or_symbol || :fixnum == class_or_symbol || :numeric == class_or_symbol
+          Fixnum == class_or_symbol || :fixnum == class_or_symbol
         end
 
         def to_java(value)
-          return nil if value.nil?
           value.to_i
         end
 
         def to_ruby(value)
-          return nil if value.nil?
           value.to_i
         end
       end
@@ -138,12 +134,10 @@ module Neo4j
         end
 
         def to_java(value)
-          return nil if value.nil?
           value.to_f
         end
 
         def to_ruby(value)
-          return nil if value.nil?
           value.to_f
         end
       end
